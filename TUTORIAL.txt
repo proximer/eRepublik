@@ -1,0 +1,40 @@
+Hey, for you to better understand I figured that I should simulate a session with the iTrader.
+
+Just open it up. If it is the first time, ignore the "Could not load data" and type your nick.
+
+now off to the interactive session. First, I advise you to read the README.txt that comes with the package.
+
+Now for the commands:
+(Lines starting with $ are things you should type. EVERYTHING except for the $)
+
+Start of by asking your database to register my id:
+
+$register 6328829 Rojer97 -n Rojer97 -i good guy, created this program
+
+That stored my ID in the database, along with my IRC nick (-n flag) and some chaty chat with the -i flag.
+
+now if you type
+
+$check 6328829
+
+And the program will tell you that that ID is registered
+
+Now you are going to buy 340 weapons Q7 from me, at 9.7 a piece...
+But how much is that??
+
+$calc 340*9.7
+
+And the program prints 3298. Sometimes, the program could say something like 3297.9999999999995
+That is because computers have always had problems with decimals... In a future update I'll fix the print to prevent this.
+
+So, if the cost for 340 is 3298, and you were to buy me that, you could register the trade:
+
+$trade buy 6328829 wq7 340 3298
+
+and you would get some nice information printed.
+after this, your log file is not empty anymore, so you can use the <log> command to check your trades!
+You only have one, but lets check "all of them"
+
+$log all
+
+(to be continued)
