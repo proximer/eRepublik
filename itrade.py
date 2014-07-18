@@ -7,8 +7,26 @@ import hashlib
 import json
 import argparse
 import datetime
+from time import sleep
 
-PROMPT = "itrade.py$ "
+VERSION = "1.0 Beta"
+
+print("Welcome!!")
+sleep(0.5)
+print("""  _ _____              _           
+ (_)_   _| __ __ _  __| | ___ _ __ 
+ | | | || '__/ _` |/ _` |/ _ \ '__|
+ | | | || | | (_| | (_| |  __/ |   
+ |_| |_||_|  \__,_|\__,_|\___|_|   
+                                   """)
+#ASCII artwork @ http://patorjk.com/software/taag/#p=display&f=Standard&t=iTrader
+print("Version {}".format(VERSION))
+print("This nice program was brought to you by Rojer97!")
+print("A donation of 1 gold would be enough to motivate me to keep improving this program!")
+sleep(5)
+input("hit return to start")
+
+PROMPT = "iTrader(beta)$ "
 
 def DEBUG(g, l, e):
 	'''Debugging function to be called when errors were expected.
