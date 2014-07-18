@@ -60,7 +60,8 @@ def LOG(file_name, data):
 main_parser = argparse.ArgumentParser()
 
 main_parser.add_argument("action", help="Define the action to execute. Type <help> for a complete help.",
-			choices=["trade", "register", "calc", "exit", "print", "check", "search", "help", "log", "convert"], metavar="action")
+			choices=["trade", "register", "calc", "exit", "print", "check",
+				"search", "help", "log", "convert"], metavar="action")
 main_parser.add_argument("args", nargs=argparse.REMAINDER, metavar="arguments",
 						help="The arguments for the action")
 
@@ -93,7 +94,10 @@ if traders == False:
 		print(globals(), locals(), "")
 				
 d = {"buy": ["bought", "spending"], "sell": ["sold", "gaining"]}
-items = {"wq6": "Weapons Q6", "wq7": "Weapons Q7", "wq5": "Weapons Q5", "wq4": "Weapons Q4", "wq3": "Weapons Q3", "wq2": "Weapons Q2", "wq1": "Weapons Q1", "fq1": "Food Q1", "fq2": "Food Q2", "fq3": "Food Q3", "fq4": "Food Q4", "fq5": "Food Q5", "fq6": "Food Q6", "fq7": "Food Q7", "wrm": "Weapon Raw Material", "frm": "Food Raw Material", "gold": "Gold"}
+items = {"wq6": "Weapons Q6", "wq7": "Weapons Q7", "wq5": "Weapons Q5", "wq4": "Weapons Q4",
+	"wq3": "Weapons Q3", "wq2": "Weapons Q2", "wq1": "Weapons Q1", "fq1": "Food Q1",
+	"fq2": "Food Q2", "fq3": "Food Q3", "fq4": "Food Q4", "fq5": "Food Q5", "fq6": "Food Q6",
+	"fq7": "Food Q7", "wrm": "Weapon Raw Material", "frm": "Food Raw Material", "gold": "Gold"}
 						
 while True:
 	inp = input(PROMPT).split()
@@ -273,7 +277,10 @@ help="The type of transaction. [buy | sell]", choices = ["buy", "sell"])
 	This gives a rate of {r:.3f} / each piece.
 	The transaction was made with {know} trader in our database.
 	After this, your "{item}" stock is {stock:,g} and you have an overall profit of {profit:,g}cc\n\n""".format(
-			act=d[data.transaction][0].capitalize(), amount=data.amount, item=items[data.item], r=data.price/data.amount, idn=data.id_number, act2=d[data.transaction][1], money=data.price, my_name=itrade_info["name"], stock=itrade_info["stock"][data.item], profit=itrade_info["profit"], know=know, time=str(datetime.datetime.now())[:-7], other=other)
+			act=d[data.transaction][0].capitalize(), amount=data.amount, item=items[data.item],
+			r=data.price/data.amount, idn=data.id_number, act2=d[data.transaction][1],
+			money=data.price, my_name=itrade_info["name"], stock=itrade_info["stock"][data.item],
+			profit=itrade_info["profit"], know=know, time=str(datetime.datetime.now())[:-7], other=other)
 
 		LOG(FILE_LOG, s)
 		print(s[:-1])
