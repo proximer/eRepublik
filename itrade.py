@@ -24,8 +24,8 @@ print("Version {}".format(VERSION))
 print("This nice program was brought to you by Rojer97!")
 print("A donation of 1 gold would be enough to motivate me,")
 print("to keep improving this program!")
-sleep(0)
-input("hit return to start")
+sleep(3)
+input("...")
 print("\n"*40)
 
 PROMPT = "iTrader(beta)$ "
