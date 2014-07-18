@@ -1,3 +1,8 @@
+## Coded by Rojer97
+### Want to join the game?? Register now! http://www.erepublik.com/en/referrer/Rojer97
+# (please do register with the above link xD)
+## Check me on eRepublik: http://www.erepublik.com/en/citizen/profile/6328829
+
 import hashlib
 import json
 import argparse
