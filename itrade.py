@@ -346,7 +346,6 @@ while True:
 {info}""".format(id=data.player, nick=traders[data.player]["nick"],
                  irc=irc, voice=voice, info=info)
                     print(s)
-                    print("{}".format(json.dumps(traders[data.player], indent=4)[2:-2]))
             else:
                 print("*** ID must be a (usually 7-digit) number")
         else:
