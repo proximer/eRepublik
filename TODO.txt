@@ -1,3 +1,13 @@
+**changes made**
+
+TO FIX:
+
+print command is not taking 0 arguments. change nargs="?"
+
+TO ADD:
+
+search function to sort results in alphabetical order of player name
+
 Add an <update> command to update your stocks
 It kind of actually defeats the whole purpose of the trades, but yeah xD
 
