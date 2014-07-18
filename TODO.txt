@@ -1,0 +1,6 @@
+Add an <update> command to update your stocks
+It kind of actually defeats the whole purpose of the trades, but yeah xD
+
+Make more logs of important things, not just trades
+
+Stop the program from always "breaking"... Google that nice library "atexit"
