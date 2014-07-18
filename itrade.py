@@ -22,9 +22,11 @@ print("""  _ _____              _
 #ASCII artwork @ http://patorjk.com/software/taag/#p=display&f=Standard&t=iTrader
 print("Version {}".format(VERSION))
 print("This nice program was brought to you by Rojer97!")
-print("A donation of 1 gold would be enough to motivate me to keep improving this program!")
+print("A donation of 1 gold would be enough to motivate me,")
+print("to keep improving this program!")
 sleep(5)
 input("hit return to start")
+print("\n"*40)
 
 PROMPT = "iTrader(beta)$ "
 
@@ -343,4 +345,4 @@ help="The type of transaction. [buy | sell]", choices = ["buy", "sell"])
 					" ".join(data.info), "irc": " ".join(data.irc), "voice":data.v}
 			print("***\tID registered.""")
 			
-		SAVE(FILE_TRADERS, traders)
+		SAVE(FILE_TRADERS, traders)
