@@ -1,4 +1,4 @@
-Hey, for you to better understand I figured that I should simulate a session with the iTrader.
+Hey, for you to better understand the program I figured that I should simulate a session with the iTrader.
 
 Just open it up. If it is the first time, ignore the "Could not load data" and type your nick.
 
