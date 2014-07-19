@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 ## Coded by Rojer97
 ### Want to join the game?? Register now! http://www.erepublik.com/en/referrer/Rojer97
 # (please do register with the above link xD)
@@ -7,7 +9,10 @@ import hashlib
 import json
 import argparse
 import datetime
-from time import sleep
+import html.parser
+import urllib.request
+import re
+from time import sleep, time
 
 VERSION = "1.0 Beta"
 
@@ -24,11 +29,72 @@ print("Version {}".format(VERSION))
 print("This nice program was brought to you by Rojer97!")
 print("A donation of 1 gold would be enough to motivate me,")
 print("to keep improving this program!")
-sleep(3)
-input("...")
+start = time()
+l = ["....", " ...", ". ..", ".. .", "... "]
+while True:
+    for l1 in l:
+        print("Loading "+l1, end="\r")
+        sleep(0.2)
+    if time()-start > 3.5:
+        print("Loaded!!    ")
+        break
+print()
+input("(press any key)")
 print("\n"*40)
 
 PROMPT = "iTrader(beta)$ "
+
+class Search_Parser(html.parser.HTMLParser):
+
+    def __init__(self):
+        html.parser.HTMLParser.__init__(self)
+        self.try_name = False
+        self.try_exp = False
+        self.matches = []
+        self.temp_link = None
+        self.temp_name = None
+    
+    def handle_starttag(self, tag, attrs):
+        d = dict(attrs)
+        if tag == "a":
+            d = dict(attrs)
+            if "class" in d.keys():
+                if d["class"] == "dotted":
+                    self.temp_link = d["href"]
+                    self.try_name = True
+        if tag == "span":
+            d = dict(attrs)
+            if "class" in d.keys():
+                if d["class"] == "special fakeheight":
+                    self.try_exp = True
+        
+    def handle_data(self, data):
+        if self.try_name:
+            self.temp_name = data
+            self.try_name = False
+        if self.try_exp:
+            self.try_exp = False
+            self.matches.append((self.temp_name, self.temp_link, data))
+            self.temp_name = None
+            self.temp_link = None
+            
+    def error(self, error):
+        pass
+        
+def handle_matches(data):
+    base_url = "http://erepublik.com"
+    if data == []:  
+        return {}
+    d = {}
+    # index 0 is name
+    # index 1 is link
+    # index 2 is exp
+    for tup in data:
+        match = re.search("[0-9]+", tup[1])
+        link_id = match.group()
+        d[tup[0]] = {"name": tup[0], "id": link_id, "link": base_url+tup[1],
+                        "exp": tup[2]}
+    return d
 
 def DEBUG(g, l, e):
     '''Debugging function to be called when errors were expected.
@@ -86,7 +152,7 @@ main_parser = argparse.ArgumentParser()
 
 main_parser.add_argument("action", help="Define the action to execute. Type <help> for a complete help.",
             choices=["trade", "register", "calc", "exit", "print", "check",
-                "search", "help", "log", "convert"], metavar="action")
+                "search", "help", "log", "convert", "list", "find"], metavar="action")
 main_parser.add_argument("args", nargs=argparse.REMAINDER, metavar="arguments",
                         help="The arguments for the action")
 
@@ -125,10 +191,71 @@ if traders == False:
         print(globals(), locals(), "")
                 
 d = {"buy": ["bought", "spending"], "sell": ["sold", "gaining"]}
+
+### Define all the parsers outside the loop
+
+convert_parser = argparse.ArgumentParser()
+convert_parser.add_argument("gold", type=int, help="Amount of gold "\
+                            "bought.", metavar="gold")
+convert_parser.add_argument("cc", type=float, help="Amount of cc "\
+                            "converted into gold.", metavar="CC")
+                            
+log_parser = argparse.ArgumentParser()
+log_parser.add_argument("n", help="Number of logs to show.", metavar="N")
+
+print_parser = argparse.ArgumentParser()
+print_parser.add_argument("player", metavar="player", nargs="?",
+                            help="Type the player ID to print")
+                            
+check_parser = argparse.ArgumentParser()
+check_parser.add_argument("id_number", metavar="id", help="ID to check.")
+
+trade_parser = argparse.ArgumentParser()
+trade_parser.add_argument("transaction", metavar="transaction", 
+help="The type of transaction. [buy | sell]", choices = ["buy", "sell"])
+trade_parser.add_argument("id_number", metavar="id", help="The id of "\
+            "the player with whom you traded.")
+trade_parser.add_argument("item", metavar="item", help="The item that "\
+            "was traded.")
+trade_parser.add_argument("amount", metavar="amount", help="The amount"\
+            " that was traded.", type=int)
+trade_parser.add_argument("price", metavar="price", help="The total "\
+            "price paid for those items.", type=float)
+            
+register_parser = argparse.ArgumentParser()
+register_parser.add_argument("id_number", metavar="id_number", help="The "\
+            "id of the trader.")
+register_parser.add_argument("nick", metavar="nick", help="The trader's "\
+            "eRepublik nick.", nargs="+")
+register_parser.add_argument("-n", "--nick", metavar="irc", help="The nick "\
+            "in IRC.", nargs=1, dest="irc", default="-")
+register_parser.add_argument("-u", metavar="update", dest="u", const=True,
+            default=False, action="store_const", help="Update switch.")
+register_parser.add_argument("-i", "--info", metavar="info", dest="info",
+            help="Additional info about the trader.", nargs="+", default="")
+register_parser.add_argument("-v", metavar="voice", dest="v", help="Flag "\
+            "if trader has voice in #itrade.", const="True", default="False",
+            action="store_const")
+            
+search_parser = argparse.ArgumentParser()
+search_parser.add_argument("criteria", metavar="criteria", help="The string to"\
+            " search for.", nargs="+")
+search_group = search_parser.add_mutually_exclusive_group()
+search_group.add_argument("-a", "--alphabetical", help=\
+            "Sort the results alphabetically.", action="store_true", dest="a")
+search_group.add_argument("-n", "--numerical", help=\
+            "Sort the results numerically.", action="store_true", dest="n")
+            
+find_parser = argparse.ArgumentParser()
+find_parser.add_argument("player", help="The player's name to search.", nargs="+")
+
+### All parsers defined
                         
 while True:
     print("\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n")
     inp = input(PROMPT).split()
+    if inp == []:
+        continue
     try:
         data = main_parser.parse_args(inp)
     except SystemExit:
@@ -176,6 +303,28 @@ while True:
         except NameError:
             print("*** Unknown character(s)")
             continue
+            
+    elif data.action == "list":
+    
+        if data.args != []:
+            print("*** Wrong number of arguments for <list>: none allowed")
+            continue
+        print()
+        t = []
+        m = 0
+        for key in traders.keys():
+            t.append((traders[key]["nick"], key))
+            if len(traders[key]["nick"]) > m:
+                m = len(traders[key]["nick"])
+        m += 1
+        m2 = len(str(len(t)))+1
+        s = "{:<@}. {:<$} : [{}]".replace("@", str(m2)).replace("$", str(m))
+        i = 1
+        for item in t:
+            print(s.format(i, item[0], item[1]))
+            i += 1
+        print()
+        print("{} traders registered in your database.".format(len(t)))
         
     elif data.action == "exit":
 
@@ -198,12 +347,6 @@ while True:
         sys.exit(0)
         
     elif data.action == "convert":
-        
-        convert_parser = argparse.ArgumentParser()
-        convert_parser.add_argument("gold", type=int, help="Amount of gold "\
-            "bought.", metavar="gold")
-        convert_parser.add_argument("cc", type=float, help="Amount of cc "\
-            "converted into gold.", metavar="CC")
 
         if len(data.args) != 2:
             print("*** Wrong number of arguments for <convert>: 2 needed")
@@ -228,9 +371,7 @@ while True:
         print("Converted {}cc into {} gold.".format(data.cc, data.gold))
         
     elif data.action == "log":
-        log_parser = argparse.ArgumentParser()
-        log_parser.add_argument("n", help="Number of logs to show.", metavar="N")
-
+        
         if len(data.args) > 1:
             print("*** Wrong number of arguments for <log>: 1 max")
             print("Type <log -h> for help")
@@ -273,32 +414,62 @@ while True:
                     print(logs[i])
         
     elif data.action == "search":
+    
+        if len(data.args) < 1:
+            print("*** Wrong number of arguments for <search>: 1 minimum")
+            print("To check all your traders, use the command <traders>.")
+            print("Type <search -h> for help")
+            continue
         
-        if "-h" in data.args:
-            print("usage: itrade.py [-h] criteria [criteria ...]")
-            print()
-            print("positional arguments:")
-            print("  criteria       What you want to search for.")
-            print()
-            print("optional arguments:")
-            print("  -h, --help            show this help message and exit")
+        try:
+            data = search_parser.parse_args(data.args)
+        except SystemExit:
+            if "-h" not in data.args:
+                print("*** Badly inputed parameters <{}>".format(" ".join(data.args)))
+                print("Type <search -h> for help")
+            continue
             
         try:
-            crit = " ".join(data.args).lower()
+            crit = " ".join(data.criteria).lower()
         except Exception:
             print("*** Badly inputed parameters <{}>".format(" ".join(data.args)))
             print("Type <search -h> for help")
             continue
 
-        for key in traders.keys():
-            # do specific search for +v users
-            if crit=="voice":
-                if traders[key]["voice"] == "True":
-                    print("* match found: ({}) {}".format(key, traders[key]["nick"]))
+        match = False
+        # do specific search for +v users
+        if data.a:
+            m = 0
+        if crit=="voice":
+            if data.a:
+                matches = [(traders[key]["nick"], key) for key in
+                            traders.keys() if traders[key]["voice"] == "True"]
             else:
+                matches = [(key, traders[key]["nick"]) for key in
+                            traders.keys() if traders[key]["voice"] == "True"]
+        else:
+            matches = []
+            for key in traders.keys():
                 info = key+traders[key]["nick"]+traders[key]["irc"]+traders[key]["info"]
                 if crit in info.lower():
-                    print("* match found: ({}) {}".format(key, traders[key]["nick"]))
+                    if data.a:
+                        matches.append((traders[key]["nick"], key))
+                        if len(traders[key]["nick"]) > m:
+                            m = len(traders[key]["nick"])
+                    else:
+                        matches.append((key, traders[key]["nick"]))
+                    
+        if matches == []:
+            print("No results were found :(")
+        else:
+            if data.a:
+                m += 1
+                s = "* match found: {:<$} ({})".replace("$", str(m))
+                for tup in sorted(matches):
+                    print(s.format(tup[0], tup[1]))
+            else:
+                for tup in sorted(matches):
+                    print("* match found: ({}) {}".format(tup[0], tup[1]))
         
     elif data.action == "print":
 
@@ -306,11 +477,7 @@ while True:
             print("*** Wrong number of arguments for <print>: either 0 or 1")
             print("Type <print -h> for help")
             continue
-        
-        print_parser = argparse.ArgumentParser()
-        print_parser.add_argument("player", metavar="player",
-            help="Type the player ID to print")
-            
+                         
         try:
             data = print_parser.parse_args(data.args)
         except SystemExit:
@@ -319,7 +486,7 @@ while True:
                 print("Type <print -h> for help")
             continue
             
-        if data.player != []:
+        if data.player != None:
             try:
                 int(data.player)
                 is_n = True
@@ -346,6 +513,7 @@ while True:
 {info}""".format(id=data.player, nick=traders[data.player]["nick"],
                  irc=irc, voice=voice, info=info)
                     print(s)
+                    print("{}".format(json.dumps(traders[data.player], indent=4)[2:-2]))
             else:
                 print("*** ID must be a (usually 7-digit) number")
         else:
@@ -357,9 +525,6 @@ while True:
         
     elif data.action == "check":
         
-        check_parser = argparse.ArgumentParser()
-        check_parser.add_argument("id_number", metavar="id", help="ID to check.")
-
         if len(data.args) != 1:
             print("*** Wrong number of arguments for <check>: only 1 needed")
             print("Type <check -h> for help")
@@ -381,18 +546,6 @@ while True:
         
     elif data.action == "trade":
         
-        trade_parser = argparse.ArgumentParser()
-        trade_parser.add_argument("transaction", metavar="transaction", 
-help="The type of transaction. [buy | sell]", choices = ["buy", "sell"])
-        trade_parser.add_argument("id_number", metavar="id", help="The id of "\
-            "the player with whom you traded.")
-        trade_parser.add_argument("item", metavar="item", help="The item that "\
-            "was traded.")
-        trade_parser.add_argument("amount", metavar="amount", help="The amount"\
-            " that was traded.", type=int)
-        trade_parser.add_argument("price", metavar="price", help="The total "\
-            "price paid for those items.", type=float)
-
         if len(data.args) != 5:
             print("*** Wrong number of arguments for <trade>: 5 needed")
             print("Type <check -h> for help")
@@ -450,24 +603,9 @@ help="The type of transaction. [buy | sell]", choices = ["buy", "sell"])
         SAVE(FILE_INFO, itrade_info)
       
     elif data.action == "register":
-        
-        info_parser = argparse.ArgumentParser()
-        info_parser.add_argument("id_number", metavar="id_number", help="The "\
-            "id of the trader.")
-        info_parser.add_argument("nick", metavar="nick", help="The trader's "\
-            "eRepublik nick.", nargs="+")
-        info_parser.add_argument("-n", "--nick", metavar="irc", help="The nick "\
-            "in IRC.", nargs=1, dest="irc", default="-")
-        info_parser.add_argument("-u", metavar="update", dest="u", const=True,
-            default=False, action="store_const", help="Update switch.")
-        info_parser.add_argument("-i", "--info", metavar="info", dest="info",
-            help="Additional info about the trader.", nargs="+", default="")
-        info_parser.add_argument("-v", metavar="voice", dest="v", help="Flag "\
-            "if trader has voice in #itrade.", const="True", default="False",
-            action="store_const")
-            
+                    
         try:
-            data = info_parser.parse_args(data.args)
+            data = register_parser.parse_args(data.args)
         except SystemExit:
             if "-h" not in data.args:
                 print("*** Badly inputed parameters <{}>".format(" ".join(data.args)))
@@ -488,3 +626,41 @@ help="The type of transaction. [buy | sell]", choices = ["buy", "sell"])
             print("*** ID registered""")
             
         SAVE(FILE_TRADERS, traders)
+        
+    elif data.action == "find":
+    
+        if len(data.args) < 1:
+            print("*** Wrong number of arguments for <find>: minimum 1")
+            print("Type <find -h> for help")
+            continue
+            
+        try:
+            data = find_parser.parse_args(data.args)
+        except SystemExit:
+            if "-h" not in data.args:
+                print("*** Badly inputed parameters <{}>".format(" ".join(data.args)))
+                print("Type <find -h> for help")
+            continue
+            
+        crit = "+".join(data.player)
+        print("Connecting to the Internet...")
+        try:
+            h = str(urllib.request.urlopen("http://www.erepublik.com/en/main/search/?q="+crit).read())
+        except Exception:
+            print("*** Could not request search")
+            continue
+        try:
+            p = Search_Parser()
+            p.feed(h)
+            p.close()
+        except Exception:
+            print("*** Could not parse the retrieved results")
+            continue
+        data = handle_matches(p.matches)
+        if data == {}:
+            print("*** 0 results found.")
+            print("(This may have happened because the criteria was too general)")
+        for key in sorted(data.keys()):
+            print("Player ID: {i}, {p} with {exp:,} total exp.".format(p=key, 
+                i=data[key]["id"], exp=int(data[key]["exp"])))
+            continue
