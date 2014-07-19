@@ -15,5 +15,4 @@ tweaked the program not to close abruptly on you
 TO ADD:
 
 Add an <update> command to update your stocks
-
-Stop the program from always "breaking"... Google that nice library "atexit"
+extend the <find>'s info printings. (strength, CS, exp)
