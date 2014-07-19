@@ -8,6 +8,8 @@ added -n and -a flags for the search command:
   -n sorts numerically (IDs)
   -a sorts alphabetically (nicks)
   defaults to -n
+tweaked the program not to close abruptly on you
+  now if an error occurs, you have the chance to take a print screen and send it to me
 
 
 TO ADD:
