@@ -1,5 +1,9 @@
 #!/usr/bin/python3
 
+import atexit
+atexit.register(input, "...")
+atexit.register(input,"@@@@@ The program is about to close.\nIf you didn't use the <exit> command,\n   please take a screenshot and send it to Rojer97 @@@@@")
+
 ## Coded by Rojer97
 ### Want to join the game?? Register now! http://www.erepublik.com/en/referrer/Rojer97
 # (please do register with the above link xD)
@@ -14,7 +18,7 @@ import urllib.request
 import re
 from time import sleep, time
 
-VERSION = "1.0 Beta"
+VERSION = "1.1.0 Beta"
 
 print("Welcome!!")
 sleep(0.5)
@@ -226,11 +230,14 @@ register_parser = argparse.ArgumentParser()
 register_parser.add_argument("id_number", metavar="id_number", help="The "\
             "id of the trader.")
 register_parser.add_argument("nick", metavar="nick", help="The trader's "\
-            "eRepublik nick.", nargs="+")
+            "eRepublik nick.", nargs="*")
 register_parser.add_argument("-n", "--nick", metavar="irc", help="The nick "\
             "in IRC.", nargs=1, dest="irc", default="-")
-register_parser.add_argument("-u", metavar="update", dest="u", const=True,
+register_group = register_parser.add_mutually_exclusive_group()
+register_group.add_argument("-u", metavar="update", dest="u", const=True,
             default=False, action="store_const", help="Update switch.")
+register_group.add_argument("-d", metavar="update", dest="d", const=True,
+            default=False, action="store_const", help="Delete switch.")
 register_parser.add_argument("-i", "--info", metavar="info", dest="info",
             help="Additional info about the trader.", nargs="+", default="")
 register_parser.add_argument("-v", metavar="voice", dest="v", help="Flag "\
@@ -320,7 +327,7 @@ while True:
         m2 = len(str(len(t)))+1
         s = "{:<@}. {:<$} : [{}]".replace("@", str(m2)).replace("$", str(m))
         i = 1
-        for item in t:
+        for item in sorted(t):
             print(s.format(i, item[0], item[1]))
             i += 1
         print()
@@ -513,7 +520,6 @@ while True:
 {info}""".format(id=data.player, nick=traders[data.player]["nick"],
                  irc=irc, voice=voice, info=info)
                     print(s)
-                    print("{}".format(json.dumps(traders[data.player], indent=4)[2:-2]))
             else:
                 print("*** ID must be a (usually 7-digit) number")
         else:
@@ -603,14 +609,35 @@ while True:
         SAVE(FILE_INFO, itrade_info)
       
     elif data.action == "register":
-                    
+        
+        args = data.args            
         try:
             data = register_parser.parse_args(data.args)
         except SystemExit:
             if "-h" not in data.args:
-                print("*** Badly inputed parameters <{}>".format(" ".join(data.args)))
+                print("*** Badly inputed parameters <{}>".format(" ".join(args)))
                 print("Type <register -h> for help")
             continue
+            
+        try:
+            int(data.id_number)
+        except Exception:
+            print("*** Argumet <id_number> must be a number")
+            print("Type <register -h> for help")
+            continue
+            
+        if data.d:
+            if data.id_number in traders.keys():
+                del traders[data.id_number]
+                continue
+            else:
+                print("*** Unregistered ID to delete")
+                continue
+        else:
+            if data.nick == []:
+                print("*** Badly inputed parameters <{}>".format(" ".join(args)))
+                print("Type <register -h> for help")
+                continue
             
         if data.id_number in traders.keys():
             if data.u:
