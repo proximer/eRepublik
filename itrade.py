@@ -15,7 +15,7 @@ import argparse
 import datetime
 import html.parser
 import urllib.request
-import re
+from re import search
 from time import sleep, time
 
 VERSION = "1.1.0 Beta"
@@ -94,7 +94,7 @@ def handle_matches(data):
     # index 1 is link
     # index 2 is exp
     for tup in data:
-        match = re.search("[0-9]+", tup[1])
+        match = search(r"[0123456789]+", tup[1])
         link_id = match.group()
         d[tup[0]] = {"name": tup[0], "id": link_id, "link": base_url+tup[1],
                         "exp": tup[2]}
@@ -283,9 +283,11 @@ while True:
         print("<trade> Logs a trade between you and someone else")
         print("<check> Checks if an ID exists in your database")
         print("<search> Searches for something in your database")
+        print("<find> Searches for a player in eRepublik itself")
         print("<convert> Converts some of your profit into CC")
         print("<log> Prints some trades for you")
         print("<print> Prints a player's info (or your own)")
+        print("<list> Prints all the players in the database")
         print("<help> Displays this help")
         
     elif data.action == "calc":
@@ -355,7 +357,7 @@ while True:
         
     elif data.action == "convert":
 
-        if len(data.args) != 2:
+        if len(data.args) != 2 and "-h" not in data.args:
             print("*** Wrong number of arguments for <convert>: 2 needed")
             print("Type <convert -h> for help")
             continue
@@ -379,7 +381,7 @@ while True:
         
     elif data.action == "log":
         
-        if len(data.args) > 1:
+        if len(data.args) > 1 and "-h" not in data.args:
             print("*** Wrong number of arguments for <log>: 1 max")
             print("Type <log -h> for help")
             continue
@@ -405,7 +407,7 @@ while True:
                 continue
             with open(FILE_LOG, "r") as f:
                 reads = f.read()
-            logs = reads.split("Registered ")[1:]
+            logs = reads.split("Registered ")
             n = -1*n
             if abs(n) >= len(logs):
                 print(reads)
@@ -422,7 +424,7 @@ while True:
         
     elif data.action == "search":
     
-        if len(data.args) < 1:
+        if len(data.args) < 1 and "-h" not in data.args:
             print("*** Wrong number of arguments for <search>: 1 minimum")
             print("To check all your traders, use the command <traders>.")
             print("Type <search -h> for help")
@@ -480,7 +482,7 @@ while True:
         
     elif data.action == "print":
 
-        if len(data.args) > 1:
+        if len(data.args) > 1 and "-h" not in data.args:
             print("*** Wrong number of arguments for <print>: either 0 or 1")
             print("Type <print -h> for help")
             continue
@@ -531,7 +533,7 @@ while True:
         
     elif data.action == "check":
         
-        if len(data.args) != 1:
+        if len(data.args) != 1 and "-h" not in data.args:
             print("*** Wrong number of arguments for <check>: only 1 needed")
             print("Type <check -h> for help")
             continue
@@ -552,7 +554,7 @@ while True:
         
     elif data.action == "trade":
         
-        if len(data.args) != 5:
+        if len(data.args) != 5 and "-h" not in data.args:
             print("*** Wrong number of arguments for <trade>: 5 needed")
             print("Type <check -h> for help")
             continue
@@ -622,13 +624,14 @@ while True:
         try:
             int(data.id_number)
         except Exception:
-            print("*** Argumet <id_number> must be a number")
+            print("*** argument <id_number> must be a number")
             print("Type <register -h> for help")
             continue
             
         if data.d:
             if data.id_number in traders.keys():
                 del traders[data.id_number]
+                SAVE(FILE_TRADERS, traders)
                 continue
             else:
                 print("*** Unregistered ID to delete")
@@ -656,7 +659,7 @@ while True:
         
     elif data.action == "find":
     
-        if len(data.args) < 1:
+        if len(data.args) < 1 and "-h" not in data.args:
             print("*** Wrong number of arguments for <find>: minimum 1")
             print("Type <find -h> for help")
             continue
