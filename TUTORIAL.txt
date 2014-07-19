@@ -7,7 +7,12 @@ now off to the interactive session. First, I advise you to read the README.txt t
 Now for the commands:
 (Lines starting with $ are things you should type. EVERYTHING except for the $)
 
-Start of by asking your database to register my id:
+Start of by asking the program what my ID must be... Use the find command for this!
+
+$find Rojer97
+
+and it prints the top results. you can find my ID there!
+register me in your database
 
 $register 6328829 Rojer97 -n Rojer97 -i good guy, created this program
 
@@ -76,6 +81,27 @@ $print 6328829
 
 Notice that altough you only changed my nick, since all the other things were missing,
  they were updated to be nothing!
+
+Now why don't you use <find> to search for some of your most usual costumers
+and use the register command to register them!
+after that, try this command:
+
+$list
+
+Now you can also do another thing! You can use the search command to sort the results alphabetically or numerically.
+
+$search (something to search for) -a
+
+That sorts alphabetically.
+
+$search (...) -n
+
+Numerically.
+Trying
+
+$search (...) -n -a OR $search (...) -na
+ 
+will just make the program yell at you :D
 
 Type help to find all the commands there are:
 
