@@ -1,0 +1,17 @@
+changelog:
+19/07/2014
+
+print command accepts again 0 arguments for the stock print
+added find command that queries a search in erepublik for a given nick
+added list command that lists all traders in your database
+added -n and -a flags for the search command:
+  -n sorts numerically (IDs)
+  -a sorts alphabetically (nicks)
+  defaults to -n
+
+
+TO ADD:
+
+Add an <update> command to update your stocks
+
+Stop the program from always "breaking"... Google that nice library "atexit"
